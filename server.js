@@ -103,8 +103,8 @@ app.get('/feedback/data/:translator_id', (req, res) => {
 
     console.log("ROW IS :", row);
 
-    // Если averageRating не определен или равен 0, устанавливаем его равным 5
-    const averageRating = row.averageRating || row.averageRating === 0 ? 5 : Math.round(row.averageRating);
+    // Если row.averageRating не существует или равно null, устанавливаем его равным 5
+    const averageRating = row.averageRating !== undefined && row.averageRating !== null ? Math.round(row.averageRating) : 5;
 
     res.json({
       translator_id: translator_id,
