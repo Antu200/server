@@ -92,21 +92,25 @@ app.post('/translators/submit-feedback/:translator_id', (req, res) => {
 app.get('/feedback/data/:translator_id', (req, res) => {
   console.log('Запрос к /feedback/count');
   const { translator_id } = req.params;
-  // Измененный SQL запрос для получения среднего рейтинга и количества отзывов
   const sql = `SELECT COUNT(*) AS feedbackCount, AVG(rating) AS averageRating FROM feedback WHERE translator_id = ?`;
+
   db.get(sql, [translator_id], (err, row) => {
-      if (err) {
-          console.error("ERR: " + err.message);
-          res.status(500).json({ error: 'Internal Server Error' });
-          return;
-      }
-      console.log("ROW IS :", row);
-      // Отправляем ответ с количеством отзывов и средним рейтингом, округленным до ближайшего целого числа
-      res.json({ 
-          translator_id: translator_id, 
-          feedbackCount: row.feedbackCount,
-          averageRating: Math.round(row.averageRating) // Округляем средний рейтинг
-      });
+    if (err) {
+      console.error("ERR: " + err.message);
+      res.status(500).json({ error: 'Internal Server Error' });
+      return;
+    }
+
+    console.log("ROW IS :", row);
+
+    // Если averageRating не определен или равен 0, устанавливаем его равным 5
+    const averageRating = row.averageRating || row.averageRating === 0 ? 5 : Math.round(row.averageRating);
+
+    res.json({
+      translator_id: translator_id,
+      feedbackCount: row.feedbackCount,
+      averageRating: averageRating
+    });
   });
 });
 
